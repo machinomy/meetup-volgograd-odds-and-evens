@@ -6,16 +6,19 @@
   "author": "Sergey Ukustov <sergey.ukustov@machinomy.com>",
   "license": "AGPL-3.0",
   "config": {
-    "wrappedArtifacts": "build/contracts/@(Game).json"
+    "wrappedArtifacts": "build/contracts/@(Game|ChannelizedGame).json"
   },
   "scripts": {
     "truffle:compile": "truffle compile",
     "wrap": "yarn truffle:compile && yarn wraptso $npm_package_config_wrappedArtifacts --output ./src/wrappers",
     "build": "yarn wrap && tsc --project tsconfig.json",
-    "test": "yarn build && yarn truffle:test",
+    "test": "yarn build && LOG_GAS_COST=true yarn truffle:test",
     "truffle:test": "run-with-testrpc 'truffle test test/*.test.js'"
   },
   "dependencies": {
+    "@machinomy/types-ethereumjs-units": "^0.0.2",
+    "ethereumjs-units": "^0.2.0",
+    "openzeppelin-solidity": "^1.11.0",
     "truffle-contract": "^3.0.6"
   },
   "devDependencies": {

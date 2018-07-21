@@ -2,9 +2,25 @@
 # yarn lockfile v1
 
 
+"@machinomy/types-bn@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@machinomy/types-bn/-/types-bn-0.0.2.tgz#3520035dcab3c6a574c30e9bea9ba881cec8363a"
+  dependencies:
+    bn.js "4.11.7"
+    safe-buffer "^5.1.2"
+
 "@machinomy/types-ethereumjs-units@^0.0.2":
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/@machinomy/types-ethereumjs-units/-/types-ethereumjs-units-0.0.2.tgz#6e508fa16a89893b1d8bf9977e6b4db34da0b6a3"
+
+"@machinomy/types-ethereumjs-util@^0.0.12":
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/@machinomy/types-ethereumjs-util/-/types-ethereumjs-util-0.0.12.tgz#f058ace5f829229dba8aa7dbdff14d48bedb94e0"
+  dependencies:
+    "@machinomy/types-bn" "^0.0.2"
+    bn.js "^4.11.7"
+    rlp "^2.0.0"
+    safe-buffer "^5.1.2"
 
 "@machinomy/types-truffle-contract@^0.0.3", "@machinomy/types-truffle-contract@^0.0.x":
   version "0.0.3"
@@ -121,6 +137,14 @@ bignumber.js@^4.0.2:
 bn.js@4.11.6:
   version "4.11.6"
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.6.tgz#53344adb14617a13f6e8dd2ce28905d1c0ba3215"
+
+bn.js@4.11.7:
+  version "4.11.7"
+  resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.7.tgz#ddb048e50d9482790094c13eb3fcfc833ce7ab46"
+
+bn.js@^4.11.7:
+  version "4.11.8"
+  resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.8.tgz#2cde09eb5ee341f484746bb0309b3253b1b1442f"
 
 brace-expansion@^1.1.7:
   version "1.1.11"
@@ -745,12 +769,22 @@ rimraf@^2.2.8:
   dependencies:
     glob "^7.0.5"
 
+rlp@^2.0.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/rlp/-/rlp-2.1.0.tgz#e4f9886d5a982174f314543831e36e1a658460f9"
+  dependencies:
+    safe-buffer "^5.1.1"
+
 run-with-testrpc@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/run-with-testrpc/-/run-with-testrpc-0.3.0.tgz#77205fc63e44e62202e0e5de51596038d82ba519"
   dependencies:
     colors "^1.1.2"
     ganache-cli "^6.0.3"
+
+safe-buffer@^5.1.1, safe-buffer@^5.1.2:
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.2.tgz#991ec69d296e0313747d59bdfd2b745c35f8828d"
 
 "semver@2 || 3 || 4 || 5", semver@^5.3.0:
   version "5.5.0"

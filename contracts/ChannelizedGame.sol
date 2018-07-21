@@ -19,6 +19,8 @@ contract ChannelizedGame {
     uint8 isOddB;
 
     event DidDeposit(address indexed party, uint256 value);
+    event DidCommit(bytes32 commitmentA, bytes32 commitmentB);
+    event DidWithdraw(uint256 toA, uint256 toB);
 
     constructor (address _partyA, address _partyB) public {
         partyA = _partyA;
@@ -43,21 +45,20 @@ contract ChannelizedGame {
         return depositA > 0 && depositA == depositB;
     }
 
-    function commitA (bytes32 _commitment, bytes _signature) public {
+    function commit (bytes32 _commitmentA, bytes32 _commitmentB, bytes _signatureA, bytes _signatureB) public {
         require(isDepositDone());
-        require(commitmentAddress(_commitment, _signature) == partyA);
-        commitmentA = _commitment;
+        require(commitmentAddress(_commitmentA, _commitmentB, _signatureA) == partyA);
+        require(commitmentAddress(_commitmentA, _commitmentB, _signatureB) == partyB);
+        commitmentA = _commitmentA;
+        commitmentB = _commitmentB;
+
+        emit DidCommit(commitmentA, commitmentB);
     }
 
-    function commitB (bytes32 _commitment, bytes _signature) public {
-        require(isDepositDone());
-        require(commitmentAddress(_commitment, _signature) == partyB);
-        commitmentB = _commitment;
-    }
-
-    function commitmentAddress(bytes32 _commitment, bytes _signature) public pure returns (address) {
+    function commitmentAddress(bytes32 _commitmentA, bytes32 _commitmentB, bytes _signature) public pure returns (address) {
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-        bytes32 hash = keccak256(abi.encodePacked(prefix, _commitment));
+        bytes32 m = keccak256(abi.encodePacked(_commitmentA, _commitmentB));
+        bytes32 hash = keccak256(abi.encodePacked(prefix, m));
         return ECRecovery.recover(hash, _signature);
     }
 
@@ -65,41 +66,68 @@ contract ChannelizedGame {
         return commitmentA != bytes32(0) && commitmentB != bytes32(0);
     }
 
-//    function revealA (
-//        uint8 _n,
-//        uint8 _isOdd,
-//        bytes32 _salt,
-//        bytes32 _signature)
-//    public {
-//        require(isCommitmentDone());
-//        require(isValidCommitmentDigestA(_n, _isOdd, _salt, commitmentA, _signature));
-//        nA = _n;
-//        isOddA = _isOdd;
-//    }
-//
-//    function revealB (uint8 _n, uint8 _isOdd, bytes32 _salt) public {
-//        require(isCommitmentDone());
-//        require(isValidCommitmentDigest(_n, _isOdd, _salt, commitmentB));
-//        nB = _n;
-//        isOddB = _isOdd;
-//    }
-//
-//    function isRevealDone () public view returns (bool) {
-//        return (isOddA != 0) && (isOddB != 0);
-//    }
-//
-//    function withdraw (uint256 toA, uint256 toB, bytes32 _signatureA, bytes32 _signatureB) public {
-//        require(isWithdraw(toA, toB, _signatureA));
-//        require(isWithdraw(toA, toB, _signatureB));
-//        partyA.transfer(toA);
-//        partyB.transfer(toB);
-//    }
+    function revealA (
+        uint8 _n,
+        uint8 _isOdd,
+        bytes32 _salt,
+        bytes _signature)
+    public {
+        require(isCommitmentDone());
+        require(recoveredReveal(_n, _isOdd, _salt, _signature) == partyA);
+        nA = _n;
+        isOddA = _isOdd;
+    }
+
+    function recoveredReveal(uint8 _n, uint8 _isOdd, bytes32 _salt, bytes _signature) public pure returns (address) {
+        bytes32 hash = revealDigest(_n, _isOdd, _salt);
+        return ECRecovery.recover(hash, _signature);
+    }
+
+    function revealB (
+        uint8 _n,
+        uint8 _isOdd,
+        bytes32 _salt,
+        bytes _signature)
+    public {
+        require(isCommitmentDone());
+        require(recoveredReveal(_n, _isOdd, _salt, _signature) == partyB);
+        nB = _n;
+        isOddB = _isOdd;
+    }
+
+    function isRevealDone () public view returns (bool) {
+        return (isOddA != 0) && (isOddB != 0);
+    }
+
+    function withdraw (uint256 toA, uint256 toB, bytes _signatureA, bytes _signatureB) public {
+        require(isWithdraw(toA, toB, _signatureA) == partyA);
+        require(isWithdraw(toA, toB, _signatureB) == partyB);
+        partyA.transfer(toA);
+        partyB.transfer(toB);
+
+        emit DidWithdraw(toA, toB);
+    }
+
+    function withdrawDigest(uint256 _toA, uint256 _toB) public view returns (bytes32) {
+        return keccak256(abi.encodePacked("w", address(this), _toA, _toB));
+    }
+
+    function isWithdraw(uint256 _toA, uint256 _toB, bytes _signature) public view returns (address) {
+        bytes32 digest = withdrawDigest(_toA, _toB);
+        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
+        bytes32 hash = keccak256(abi.encodePacked(prefix, digest));
+        return ECRecovery.recover(hash, _signature);
+    }
 
     function commitmentDigest (uint8 _n, uint8 _isOdd, bytes32 _salt) public pure returns (bytes32) {
         return keccak256(abi.encodePacked(_n, _isOdd, _salt));
     }
 
-    function recoveryCommitmentDigest (uint8 _n, uint8 _isOdd, bytes32 _salt) public pure returns (bytes32) {
+    function combinedCommitmentDigest (bytes32 _a, bytes32 _b) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_a, _b));
+    }
+
+    function revealDigest(uint8 _n, uint8 _isOdd, bytes32 _salt) public pure returns (bytes32) {
         bytes32 digest = commitmentDigest(_n, _isOdd, _salt);
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
         return keccak256(abi.encodePacked(prefix, digest));

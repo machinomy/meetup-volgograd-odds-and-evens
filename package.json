@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@machinomy/types-ethereumjs-units": "^0.0.2",
+    "@machinomy/types-ethereumjs-util": "^0.0.12",
     "ethereumjs-units": "^0.2.0",
     "openzeppelin-solidity": "^1.11.0",
     "truffle-contract": "^3.0.6"
